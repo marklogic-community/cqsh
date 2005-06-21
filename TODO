@@ -1,0 +1,28 @@
+===============================================================================
+cqsh - TODO
+===============================================================================
+
+* Pretty print xml output. 
+
+* Ant task
+
+* Output errors in a parsable format. 
+
+* Implement some admin functionality similar to the Admin web interface that
+  comes with Mark Logic
+
+* chmod
+
+* netstat -l
+
+* commands in input (redirect "ls -l > file.out")
+
+* explain "query" maybe uses xdmp:query-meters()
+
+* query status. See the new mark logic interface 3.0
+
+* mltop (similar to mytop)
+
+* hook into the task server some how
+
+* schema validation support

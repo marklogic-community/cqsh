@@ -1,0 +1,10 @@
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+This product includes software developed by the
+JDOM Project (http://www.jdom.org/).
+
+Console input is provided by the JLine library package, originally written by
+Marc Prud'hommeaux, and released under the BSD license.
+The software is available from:
+   http://jline.sourceforge.net/

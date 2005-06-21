@@ -1,0 +1,83 @@
+===============================================================================
+cqsh - README
+===============================================================================
+
+ABOUT
+
+cqsh is a command line interface for Mark Logic. cqsh was built to be an
+alternative to the web interface cq that comes with Mark Logic. It has Readline 
+capabilities and allows you to issue queries, load files, and interact with Mark
+Logic from a shell environment. cqsh can also be run in batch mode by reading
+from stdin or passing in a file path using the -f flag.
+
+INSTALL
+
+cqsh requires Java version 1.4.2 or greater. To build the sources you will also
+need ant installed.
+
+Windows:
+
+    COMING SOON
+
+Linux, Mac OS X:
+
+    Unzip the distribution to the location of your choice (/usr/local) and
+    optionally set up your path:
+        $ export CQSH_HOME=/usr/local/cqsh-version
+        $ export PATH=$CQSH_HOME/bin:$PATH
+
+
+To run cqsh you must specify the user, password, host, and port of your Mark
+Logic server. You can provide these on the command line (see: cqsh --help) or
+you can create a '.cqshrc' file in your $HOME directory. An example of this file
+can be found in the docs/ directory.
+
+Now you can run:
+    $ cqsh -u user -p pass -H my.host.com -P 8003
+
+    or if you created a .cqshrc
+
+    $ cqsh
+
+Once your in the cqsh shell you can type:
+    cqsh> help
+
+This will print out a list of commands that can be run inside the shell. cqsh
+will run XQuery statements and return the results unless a command is issued.
+You must terminate your XQuery statements with a ';'.
+
+EXAMPLES
+
+    issue an xquery statement:
+        cqsh> for $i in input() return base-uri($i);
+
+    scroll large output 30 lines at a time:
+        cqsh> set scroll = 30
+        cqsh> (//node)[1 to 10];
+
+    multi-line xquery: 
+        cqsh> count(
+           ->    for $i in input() return $i
+           ->  );
+
+    load a file into the database:
+        cqsh> load /home/user/my_file.xml
+
+    run in batch mode from the shell (bash):
+        $ cqsh < myquery.xqy
+
+        or
+
+        $ cqsh -f myquery.xqy
+        
+CUSTOM COMMANDS
+
+You can write your own custom commands by implementing the Command interface.
+For an examples check out a few commands in the src/ directory. (Note: the
+Environment and Command interfaces are not yet stable and may change in future
+releases of the cqsh).
+
+AUTHOR
+
+cqsh was written by Andrew Bruno <aeb@qnot.org> with feedback and ideas from
+Ryan Grimm and Jason Hunter.

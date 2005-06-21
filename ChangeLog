@@ -1,0 +1,31 @@
+===============================================================================
+cqsh - ChangeLog
+===============================================================================
+
+* 2005-06-08
+	* Added rm command.
+	* ls command now takes argument -l to list permissions for documents
+
+* 2005-06-04
+	* version 0.0.2
+	* Re-wrote Shell. Created Environment, Command interfaces to allow for 
+	  multiple environments and pluggable commands.
+	* Removed Java-Readline library and switched to jline.
+	* Added su command
+
+* 2005-05-25
+	* Added "set" command to set configuration properties within running shell.
+
+* 2005-05-09
+	* Fixed issue with scrolling multiple items in a result.
+
+* 2005-05-04
+	* Added -f flag to read queries from a file path. This allows cqsh to be
+	  used directly from vim with :make.
+	* Added '\c' to clear command buffer	
+
+* 2005-05-03
+	* Added command line history support.
+
+* 2005-05-01
+	* Created version 0.0.1 of cqsh 

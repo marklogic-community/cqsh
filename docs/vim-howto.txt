@@ -1,0 +1,6 @@
+You can set cqsh to be your makeprog in vim.
+
+:set makeprg=cqsh\ -f\ %
+
+Now you can run :make and it will run your xquery then :cope will display the
+results in a vim window.

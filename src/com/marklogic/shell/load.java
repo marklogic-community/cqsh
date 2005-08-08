@@ -45,6 +45,13 @@ public class load implements Command {
 				//any db.
 				String currentDb = shell.getProperties().getString("database");
 				String defaultDb = shell.getProperties().getString("default-database");
+				if(defaultDb == null && currentDb == null) {
+					env.printLine("Default database is not set. Please set and try again.");
+					return;
+				}
+				if(currentDb == null && defaultDb != null) {
+					currentDb = defaultDb;
+				}
 				String port = shell.getProperties().getString("port");
 				if(!defaultDb.equals(currentDb)) {
 					env.printLine("Current database '" + currentDb + "' is not the default database bound to port '" + port + "'.");

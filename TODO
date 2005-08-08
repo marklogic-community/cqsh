@@ -26,3 +26,5 @@ cqsh - TODO
 * hook into the task server some how
 
 * schema validation support
+
+* test commit

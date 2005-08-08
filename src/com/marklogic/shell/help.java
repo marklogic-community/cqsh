@@ -22,27 +22,28 @@ public class help implements Command {
 
 	public String getHelp() {
 	    StringBuffer help = new StringBuffer();
-        help.append("Help System: help [command] will display verbose info" + NEWLINE);
-        help.append(NEWLINE);
-        help.append("Commands" + NEWLINE);
-        help.append(NEWLINE);
-        help.append("--Document: " + NEWLINE);
-        help.append("  load [file pattern] ..   loads files into database " + NEWLINE);
-        help.append("  ls [xpath]               list base-uri()'s for nodes returned in 'xpath'" + NEWLINE);
-        help.append("  cat [document uri]       display a documents contents" + NEWLINE);
-        help.append("  rm [-f -x] uri uri ..    remove document(s) from database" + NEWLINE);
-        help.append(NEWLINE);
-        help.append("--Environment: " + NEWLINE);
-        help.append("  echo [property]          echo the value of a configuration property" + NEWLINE);
-        help.append("  env                      displays the current configuration environment" + NEWLINE);
-        help.append("  set name=value           sets a configuration property" + NEWLINE);
-        help.append("  su [username]            switch to a differnt user" + NEWLINE);
-        help.append(NEWLINE);
-        help.append("--System: " + NEWLINE);
-        help.append("  show databases           lists all databases" + NEWLINE);
-        help.append("  version                  displays MarkLogic version information" + NEWLINE);
-        help.append("  help [command]           display verbose information on a command" + NEWLINE);
-        help.append("  exit (quit or q)         quit the program" + NEWLINE);
+        help.append("Help System: help [command] will display verbose info" + Environment.NEWLINE);
+        help.append(Environment.NEWLINE);
+        help.append("Commands" + Environment.NEWLINE);
+        help.append(Environment.NEWLINE);
+        help.append("--Document: " + Environment.NEWLINE);
+        help.append("  load [file pattern] ..   loads files into database " + Environment.NEWLINE);
+        help.append("  ls [xpath]               list base-uri()'s for nodes returned in 'xpath'" + Environment.NEWLINE);
+        help.append("  cat [document uri]       display a documents contents" + Environment.NEWLINE);
+        help.append("  rm [-f -x] uri uri ..    remove document(s) from database" + Environment.NEWLINE);
+        help.append(Environment.NEWLINE);
+        help.append("--Environment: " + Environment.NEWLINE);
+        help.append("  echo [property]          echo the value of a configuration property" + Environment.NEWLINE);
+        help.append("  env                      displays the current configuration environment" + Environment.NEWLINE);
+        help.append("  set name=value           sets a configuration property" + Environment.NEWLINE);
+        help.append("  su [username]            switch to a differnt user" + Environment.NEWLINE);
+        help.append(Environment.NEWLINE);
+        help.append("--System: " + Environment.NEWLINE);
+        help.append("  show databases           lists all databases" + Environment.NEWLINE);
+        help.append("  use [database]           Eval xquery in specified database" + Environment.NEWLINE);
+        help.append("  version                  displays MarkLogic version information" + Environment.NEWLINE);
+        help.append("  help [command]           display verbose information on a command" + Environment.NEWLINE);
+        help.append("  exit (quit or q)         quit the program" + Environment.NEWLINE);
 
 		return help.toString();
 	}

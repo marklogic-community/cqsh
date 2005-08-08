@@ -22,8 +22,8 @@ public class echo implements Command {
 
 	public String getHelp() {
 		StringBuffer help = new StringBuffer();
-		help.append("usage: echo" + NEWLINE);
-		help.append("Echo a configuration variable to the console." + NEWLINE);
+		help.append("usage: echo" + Environment.NEWLINE);
+		help.append("Echo a configuration variable to the console." + Environment.NEWLINE);
 		return help.toString();
 	}
 

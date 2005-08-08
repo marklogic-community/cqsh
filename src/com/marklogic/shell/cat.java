@@ -24,24 +24,24 @@ public class cat implements Command {
 
 	public String getHelp() {
 		StringBuffer help = new StringBuffer();
-		help.append("usage: cat [uri]" + NEWLINE);
-		help.append("Display the xml content located at [uri]. Output will be paged 50 lines" + NEWLINE);
-		help.append("at a time by default. You can configure the number of lines to scroll by" + NEWLINE);
-		help.append("setting the 'scroll' environment variable. See help set." + NEWLINE);
+		help.append("usage: cat [uri]" + Environment.NEWLINE);
+		help.append("Display the xml content located at [uri]. Output will be paged 50 lines" + Environment.NEWLINE);
+		help.append("at a time by default. You can configure the number of lines to scroll by" + Environment.NEWLINE);
+		help.append("setting the 'scroll' environment variable. See help set." + Environment.NEWLINE);
 		return help.toString();
 	}
 
 	public void execute(Environment env, String arg) {
 		if( arg != null && arg.length() > 0 ) {
-			String query = "define variable $uri as xs:string external ";
-				   query += "if(doc($uri)) then doc($uri) else \"Document not found.\"";
-			try {
-				XQDataSource dataSource = env.getDataSource();
-				XQuery xquery = dataSource.newQuery(query);
-				xquery.setVariable(dataSource.newVariable("uri", XQVariableType.XS_STRING, arg));
-				env.runXQuery(xquery);
-			} catch (XQException e) {
-				env.printError(e);
+			if(env instanceof Shell) {
+				Shell shell = (Shell)env;
+				String query = "if(doc(\"" + arg + "\")) then doc(\"" + arg + "\") else \"Document not found.\"";
+				ShellQuery squery = new ShellQuery(query, shell);
+				try {
+					env.runXQuery(squery.asXQuery());
+				} catch (XQException e) {
+					env.printError(e);
+				}
 			}
 		} else {
 				env.printLine("Please specify a document to view: cat [document uri]");

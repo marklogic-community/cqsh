@@ -25,8 +25,8 @@ public class show implements Command {
 
 	public String getHelp() {
 		StringBuffer help = new StringBuffer();
-		help.append("usage: show databases" + NEWLINE);
-		help.append("Shows all databases in Mark Logic in which the user has permissions to view." + NEWLINE);
+		help.append("usage: show databases" + Environment.NEWLINE);
+		help.append("Shows all databases in Mark Logic in which the user has permissions to view." + Environment.NEWLINE);
 		return help.toString();
 	}
 

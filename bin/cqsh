@@ -69,7 +69,5 @@ CQSH_DIST=`echo $CQSH_HOME/dist/*.jar | tr ' ' ':'`
 CQSH_CLASSPATH="$CQSH_LIB:$CQSH_DIST"
 export LD_LIBRARY_PATH=$CQSH_HOME/lib/
 
-cqsh_exec_command="exec \"$JAVACMD\"  -Xms128m -Xmx512m -classpath \"$CQSH_CLASSPATH\" com.marklogic.shell.Shell $@"
+$JAVACMD -Xms128m -Xmx512m -classpath "$CQSH_CLASSPATH" com.marklogic.shell.Shell "$@"
 
-#echo $cqsh_exec_command
-eval $cqsh_exec_command

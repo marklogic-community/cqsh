@@ -51,9 +51,9 @@ public class rm implements Command {
 
 	public String getHelp() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("usage: rm [options] [uri uri ...]" + NEWLINE);
-		buffer.append("Remove documents from the database." + NEWLINE);
-		buffer.append("Options: " + NEWLINE);
+		buffer.append("usage: rm [options] [uri uri ...]" + Environment.NEWLINE);
+		buffer.append("Remove documents from the database." + Environment.NEWLINE);
+		buffer.append("Options: " + Environment.NEWLINE);
         HelpFormatter formatter = new HelpFormatter();
         StringWriter help = new StringWriter();
         formatter.printOptions(new PrintWriter(help),
@@ -94,13 +94,12 @@ public class rm implements Command {
 						}
 					}
 					if (key.equalsIgnoreCase("y")) {
-							String query = "concat(xs:string(count(for $n in (" + xpath + ")" 
-									      +" return (xdmp:document-delete(base-uri($n)), <done/>))), "
-							               + "\" documents removed.\");";
 							try {
-								XQDataSource dataSource = shell.getDataSource();
-								XQuery xquery = dataSource.newQuery(query);
-								shell.runXQuery(xquery, true, false);
+								String query = "concat(xs:string(count(for $n in (" + xpath + ")" 
+										      +" return (xdmp:document-delete(base-uri($n)), <done/>))), "
+								               + "\" documents removed.\");";
+								ShellQuery squery = new ShellQuery(query, shell);
+								shell.runXQuery(squery.asXQuery(), true, false);
 							} catch (XQException e) {
 								shell.printError(e);
 							}
@@ -122,15 +121,11 @@ public class rm implements Command {
 							}
 						}
 						if (key.equalsIgnoreCase("y")) {
-							String query = "define variable $uri as xs:string external ";
-							query += "if(doc($uri)) then xdmp:document-delete($uri) "
-									+ "else \"Document not found.\"";
 							try {
-								XQDataSource dataSource = shell.getDataSource();
-								XQuery xquery = dataSource.newQuery(query);
-								xquery.setVariable(dataSource.newVariable("uri",
-										XQVariableType.XS_STRING, uri));
-								shell.runXQuery(xquery, true, false);
+								String query = "if(doc(\"" + uri + "\")) then xdmp:document-delete(\"" + uri + "\") "
+											  + "else \"Document not found.\"";
+								ShellQuery squery = new ShellQuery(query, shell);
+								shell.runXQuery(squery.asXQuery(), true, false);
 							} catch (XQException e) {
 								shell.printError(e);
 							}

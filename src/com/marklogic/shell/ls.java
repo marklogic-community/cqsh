@@ -47,10 +47,10 @@ public class ls implements Command {
 
 	public String getHelp() {
 		StringBuffer help = new StringBuffer();
-		help.append("usage: ls [xpath]" + NEWLINE);
-		help.append("List base-uri's for nodes returned in [xpath]. By default this command is" + NEWLINE);
-		help.append("equivalent to running: for $i in input() order by base-uri($i) return base-uri($i) " + NEWLINE);
-		help.append("Options: " + NEWLINE);
+		help.append("usage: ls [xpath]" + Environment.NEWLINE);
+		help.append("List base-uri's for nodes returned in [xpath]. By default this command is" + Environment.NEWLINE);
+		help.append("equivalent to running: for $i in input() order by base-uri($i) return base-uri($i) " + Environment.NEWLINE);
+		help.append("Options: " + Environment.NEWLINE);
 		HelpFormatter formatter = new HelpFormatter();
 		StringWriter buf = new StringWriter();
 		formatter.printOptions(new PrintWriter(buf),
@@ -116,9 +116,10 @@ public class ls implements Command {
 					scroll = shell.getProperties().getInt("scroll");   
 				} catch(ConversionException e) { }
 				
+				ShellQuery squery = new ShellQuery(xquery.toString(), shell);
 				XQDataSource dataSource = env.getDataSource();
 				XQRunner runner = dataSource.newSyncRunner();
-				XQResult result = runner.runQuery(dataSource.newQuery(xquery.toString()));
+				XQResult result = runner.runQuery(squery.asXQuery());
 				int lineCount = 0;
 				for( int x = 0; x < result.getSize(); x++) {
 					lineCount++;

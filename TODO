@@ -2,8 +2,6 @@
 cqsh - TODO
 ===============================================================================
 
-* Pretty print xml output. 
-
 * Ant task
 
 * Output errors in a parsable format. 
@@ -27,4 +25,4 @@ cqsh - TODO
 
 * schema validation support
 
-* test commit
+* Figure out how to write test suite

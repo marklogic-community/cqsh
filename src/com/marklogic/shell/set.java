@@ -22,8 +22,8 @@ public class set implements Command {
 
 	public String getHelp() {
 		StringBuffer help = new StringBuffer();
-		help.append("usage: set name = value" + NEWLINE);
-		help.append("Set a configuration variable." + NEWLINE);
+		help.append("usage: set name = value" + Environment.NEWLINE);
+		help.append("Set a configuration variable." + Environment.NEWLINE);
 		return help.toString();
 	}
 

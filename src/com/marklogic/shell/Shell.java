@@ -22,6 +22,9 @@ import org.apache.commons.cli.*;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.jdom.Document;
+import org.jdom.output.XMLOutputter;
+import org.jdom.output.Format;
 
 import com.marklogic.xqrunner.*;
 import com.marklogic.xdbc.XDBCXQueryException;
@@ -55,6 +58,20 @@ public class Shell implements Environment {
      */
 	protected static final int DEFAULT_PORT = 8003;
 	
+	/**
+	 * Print writer to force utf-8 output
+	 */
+	private static PrintWriter utf8Out = null;
+	
+	static {
+		try {
+			utf8Out = new PrintWriter(new OutputStreamWriter(System.out, "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			System.err.println("Failed to create UTF-8 Print writer.");
+			e.printStackTrace();
+		}
+	}
+
     private Options options = new Options();
     private PropertiesConfiguration properties;
 	private jline.ConsoleReader console;
@@ -89,6 +106,9 @@ public class Shell implements Environment {
                                    .withDescription("read xquery from file")
                                    .hasArg()
                                    .create("f");
+        Option formatOption = OptionBuilder.withLongOpt("format")
+                                   .withDescription("pretty print xml output")
+                                   .create("F");
 
         options.addOption(user);
         options.addOption(password);
@@ -96,6 +116,7 @@ public class Shell implements Environment {
         options.addOption(port);
         options.addOption(help);
         options.addOption(fileOption);
+        options.addOption(formatOption);
 
         
     		properties = new PropertiesConfiguration();
@@ -154,6 +175,10 @@ public class Shell implements Environment {
         if(properties.getString("scroll") == null || properties.getString("scroll").length() <= 0) {
             properties.setProperty("scroll", String.valueOf(DEFAULT_SCROLL));
         }
+        
+        if(cmd.hasOption("F") ) {
+            properties.setProperty("pretty-print-xml", "true");
+        }
             
         String xqueryFile = cmd.getOptionValue("f");
         InputStream in = null;
@@ -181,8 +206,8 @@ public class Shell implements Environment {
                     xquery.append(b, 0, n);
                 }
                 try {
-                		XQDataSource dataSource = getDataSource();
-					runXQuery(dataSource.newQuery(xquery.toString()), false, false);
+                		ShellQuery squery = new ShellQuery(xquery.toString(), this);
+					runXQuery(squery.asXQuery(), false, false);
 				} catch(XQException e) {
                 		printError(e);
                 }
@@ -321,8 +346,8 @@ public class Shell implements Environment {
             xquery.append(line.substring(0, line.length()-1));
             if( !clearBuffer ) {
             		try {
-            			XQDataSource dataSource = getDataSource();
-					runXQuery(dataSource.newQuery(xquery.toString()));
+            			ShellQuery squery = new ShellQuery(xquery.toString(), this);
+					runXQuery(squery.asXQuery());
             		} catch(XQException e) {
             			printError(e);
             		}
@@ -354,34 +379,29 @@ public class Shell implements Environment {
             long end = System.currentTimeMillis();
             double total = (double)(end - start)/1000;
 
-            if( scrollResult ) {
-                try {
-					boolean stop = false;
-					int lineCount = 0;
-					for( int x = 0; x < result.getSize(); x++) {
-						XQResultItem item = result.getItem(x);
-						BufferedReader reader = new BufferedReader(new InputStreamReader(item.asStream()));
-						String line = null;
-
-						while((line = reader.readLine()) != null) {
-							lineCount++;
-							printLine(line);
-							if( checkStopScroll(lineCount) ) {
-								stop = true;
-								break;
-							}
-						}
-						reader.close();
-						
-						if(stop) {
+            try {
+				boolean stop = false;
+				int lineCount = 0;
+				for( int x = 0; x < result.getSize(); x++) {
+					XQResultItem item = result.getItem(x);
+					
+					BufferedReader reader = getReader(item);
+					String line = null;
+					while((line = reader.readLine()) != null) {
+						lineCount++;
+						printLine(line);
+						if( scrollResult && checkStopScroll(lineCount) ) {
+							stop = true;
 							break;
 						}
 					}
-                } catch(IOException e) {
-                    printLine("Failed to read result string: " + e.getMessage());
-                }
-            } else {
-                printLine(result.asString("\n"));
+					reader.close();
+					if(stop) {
+						break;
+					}
+				}
+            } catch(IOException e) {
+                printLine("Failed to read result string: " + e.getMessage());
             }
 
             DecimalFormat format = new DecimalFormat("###,##0.00");
@@ -392,6 +412,26 @@ public class Shell implements Environment {
 			printError(e);
         }
     }
+    
+    protected BufferedReader getReader(XQResultItem item) throws XQException, UnsupportedEncodingException {
+		BufferedReader reader;
+		if(item.getType().equals(XQVariableType.NODE) && "true".equals(properties.getString("pretty-print-xml"))) {
+			Document doc = item.asJDom();
+			Format format = Format.getPrettyFormat();
+			format.setLineSeparator(NEWLINE);
+			format.setOmitDeclaration(true);
+			format.setOmitEncoding(true);
+			XMLOutputter xmlout = new XMLOutputter(format);
+			String docString = xmlout.outputString(doc);
+			reader = new BufferedReader(new StringReader(docString));
+		} else {
+			// needed to add UTF-8 instead of relying on the default char set for the system
+			reader = new BufferedReader(new InputStreamReader(item.asStream(), "UTF-8"));
+		}
+		
+		return reader;
+	}
+    
     protected boolean debug() {
     		return "true".equals(properties.getString("debug"));
     }
@@ -403,6 +443,14 @@ public class Shell implements Environment {
 		try {    
 			scroll = properties.getInt("scroll");   
 		} catch(ConversionException e) { }
+		
+		if(scroll == 0) {
+			return false;
+		}
+		
+		if(scroll < 0) {
+			scroll = DEFAULT_SCROLL;
+		}
 		
 		if( (lineCount % scroll) == 0 ) {
 			try {
@@ -445,7 +493,9 @@ public class Shell implements Environment {
 		XQFactory factory = new XQFactory();
 		XQDataSource dataSource = factory.newDataSource( host, port, user, password);
 		XQRunner runner = dataSource.newSyncRunner();
-		XQResult result = runner.runQuery(dataSource.newQuery("('Hello World')"));
+		XQResult result = runner.runQuery(dataSource.newQuery("xdmp:database-name(xdmp:database())"));
+		XQResultItem item = result.nextItem();
+		properties.setProperty("default-database", item.asString());
 	}
 
 	/**
@@ -522,14 +572,24 @@ public class Shell implements Environment {
      * Print a message to the console.
      */
     public void print(String message) {
-		System.out.print(message);
+		try {
+			utf8Out.print(message);
+			utf8Out.flush();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
     }
 
     /**
      * Print a message to the console with a newline.
      */
     public void printLine(String message) {
-		System.out.println(message);
+		try {
+			utf8Out.println(message);
+			utf8Out.flush();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
     }
 
     /**

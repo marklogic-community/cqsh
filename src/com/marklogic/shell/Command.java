@@ -21,8 +21,6 @@ package com.marklogic.shell;
  * @author Andrew Bruno <aeb@qnot.org>
  */
 public interface Command {
-	public static final String NEWLINE = "\n";
-
     public String getName();
 
     public String getHelp();

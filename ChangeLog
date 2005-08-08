@@ -2,6 +2,33 @@
 cqsh - ChangeLog
 ===============================================================================
 
+* 2005-08-07
+	* Added command line option --format or -F to pretty print xml output from 
+	  the command line.
+	* Upgraded xdbc jars to 2.2.8
+	* Upgraded xqrunner jar to 0.7.2	   
+
+* 2005-08-01
+	* Added "use" command similiar to MySQL use. Changes the default database
+	  which queries are eval'ed in.
+	* Modified ls, rm, and cat commands to eval in current database 
+
+* 2005-07-31
+	* Added pretty-print-xml config option
+	* Added eval-in support to ls and cat commands
+
+* 2005-07-27
+	* Modified shell to always output UTF-8. -- Jason Hunter's Patch
+	* Added XML Pretty printing on output
+	* Commands now use Environment.NEWLINE
+
+* 2005-07-15
+	* Fixed bug in cqsh shell script where command line options were not being
+	  quoted properly -- James Duncan Davidson
+ 
+* 2005-06-22
+	* Released version 0.0.2 on xqzone
+
 * 2005-06-08
 	* Added rm command.
 	* ls command now takes argument -l to list permissions for documents

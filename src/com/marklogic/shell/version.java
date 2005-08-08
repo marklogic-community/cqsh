@@ -26,8 +26,8 @@ public class version implements Command {
 
 	public String getHelp() {
 		StringBuffer help = new StringBuffer();
-		help.append("usage: version" + NEWLINE);
-		help.append("Displays Mark Logic version information." + NEWLINE);
+		help.append("usage: version" + Environment.NEWLINE);
+		help.append("Displays Mark Logic version information." + Environment.NEWLINE);
 		return help.toString();
 	}
 

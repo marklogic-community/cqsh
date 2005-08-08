@@ -24,8 +24,8 @@ public class env implements Command {
 
 	public String getHelp() {
 		StringBuffer help = new StringBuffer();
-		help.append("usage: env" + NEWLINE);
-		help.append("Prints out the configuration environment." + NEWLINE);
+		help.append("usage: env" + Environment.NEWLINE);
+		help.append("Prints out the configuration environment." + Environment.NEWLINE);
 		return help.toString();
 	}
 

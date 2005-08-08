@@ -26,10 +26,10 @@ public class su implements Command {
 
 	public String getHelp() {
 		StringBuffer help = new StringBuffer();
-		help.append("usage: su [username]" + NEWLINE);
-		help.append("Switch to a different user (you will be prompted to enter in a password)." + NEWLINE);
-		help.append("Set's the environment variables 'user' and 'password' upon successful" + NEWLINE);
-		help.append("connection to Mark Logic. Will not change environment if failed to connect." + NEWLINE);
+		help.append("usage: su [username]" + Environment.NEWLINE);
+		help.append("Switch to a different user (you will be prompted to enter in a password)." + Environment.NEWLINE);
+		help.append("Set's the environment variables 'user' and 'password' upon successful" + Environment.NEWLINE);
+		help.append("connection to Mark Logic. Will not change environment if failed to connect." + Environment.NEWLINE);
 		return help.toString();
 	}
 

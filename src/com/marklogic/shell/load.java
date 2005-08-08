@@ -30,24 +30,38 @@ public class load implements Command {
 
 	public String getHelp() {
 		StringBuffer help = new StringBuffer();
-		help.append("usage: load [file path]" + NEWLINE);
-		help.append("Loads a document into Mark Logic from [file path]. The document uri defaults to" + NEWLINE);
-		help.append("the file path." + NEWLINE);
+		help.append("usage: load [file path]" + Environment.NEWLINE);
+		help.append("Loads a document into Mark Logic from [file path]. The document uri defaults to" + Environment.NEWLINE);
+		help.append("the file path." + Environment.NEWLINE);
 		return help.toString();
 	}
 
 	public void execute(Environment env, String arg) {
 		if( arg != null && arg.length() > 0 ) {
-			String[] paths = arg.split("\\s+");
-			for(int i = 0; i < paths.length; i++) {
-				List files = FileScanner.findFiles(paths[i]);
-				if( files != null && files.size() > 0) {
-					for(Iterator it = files.iterator(); it.hasNext();) {
-						File f = (File)it.next();
-						loadDocument(env, f.getAbsolutePath(), f);
+			if(env instanceof Shell) {
+				Shell shell = (Shell)env;
+				//XXX currently we can only load documents into the default database which the
+				//user connected to. Need to figure out how to support loading documents into
+				//any db.
+				String currentDb = shell.getProperties().getString("database");
+				String defaultDb = shell.getProperties().getString("default-database");
+				String port = shell.getProperties().getString("port");
+				if(!defaultDb.equals(currentDb)) {
+					env.printLine("Current database '" + currentDb + "' is not the default database bound to port '" + port + "'.");
+					env.printLine("Can only load documents into '" + defaultDb + "'. Please change current database to confirm.");
+					return;
+				}
+				String[] paths = arg.split("\\s+");
+				for(int i = 0; i < paths.length; i++) {
+					List files = FileScanner.findFiles(paths[i]);
+					if( files != null && files.size() > 0) {
+						for(Iterator it = files.iterator(); it.hasNext();) {
+							File f = (File)it.next();
+							loadDocument(env, f.getAbsolutePath(), f);
+						}
+					} else {
+						env.printLine("No well-formed XML file(s) found at location " + paths[i] + ".");
 					}
-				} else {
-					env.printLine("No well-formed XML file(s) found at location " + paths[i] + ".");
 				}
 			}
 		} else {

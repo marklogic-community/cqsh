@@ -26,3 +26,7 @@ cqsh - TODO
 * schema validation support
 
 * Figure out how to write test suite
+
+* load command can optionally take in a file that contains a list of files 
+  paths/uri's to load
+  

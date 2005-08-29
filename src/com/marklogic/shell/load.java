@@ -18,26 +18,54 @@ package com.marklogic.shell;
 import java.io.*;
 import java.util.*;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+
 import com.marklogic.xqrunner.*;
 import com.marklogic.xqrunner.xdbc.*;
 import com.marklogic.xdbc.XDBCException;
 import com.marklogic.xdmp.XDMPDocInsertStream;
 
 public class load implements Command {
+	private Options options = new Options();
+
+	public load() {
+		Option uriOption = OptionBuilder.withLongOpt("uriprefix")
+		                            .withDescription("uri prefix to append to file names when loading")
+		                            .hasArg()
+		                            .create("i");
+
+		options.addOption(uriOption);
+	}
 	public String getName() {
 		return "load";
 	}
 
 	public String getHelp() {
-		StringBuffer help = new StringBuffer();
-		help.append("usage: load [file path]" + Environment.NEWLINE);
-		help.append("Loads a document into Mark Logic from [file path]. The document uri defaults to" + Environment.NEWLINE);
-		help.append("the file path." + Environment.NEWLINE);
-		return help.toString();
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("usage: load [options] [file path]" + Environment.NEWLINE);
+		buffer.append("Loads a document into Mark Logic from [file path]. The document uri defaults to" + Environment.NEWLINE);
+		buffer.append("the file name." + Environment.NEWLINE);
+		buffer.append("Options: " + Environment.NEWLINE);
+        HelpFormatter formatter = new HelpFormatter();
+        StringWriter help = new StringWriter();
+        formatter.printOptions(new PrintWriter(help),
+				               80,
+				               options,
+				               4,
+				               8);
+        buffer.append(help.toString());
+		return buffer.toString();
 	}
 
-	public void execute(Environment env, String arg) {
-		if( arg != null && arg.length() > 0 ) {
+	public void execute(Environment env, String commandline) {
+		if( commandline != null && commandline.length() > 0 ) {
 			if(env instanceof Shell) {
 				Shell shell = (Shell)env;
 				//XXX currently we can only load documents into the default database which the
@@ -58,16 +86,28 @@ public class load implements Command {
 					env.printLine("Can only load documents into '" + defaultDb + "'. Please change current database to confirm.");
 					return;
 				}
-				String[] paths = arg.split("\\s+");
-				for(int i = 0; i < paths.length; i++) {
-					List files = FileScanner.findFiles(paths[i]);
+				
+				String[] tokens = commandline.split("\\s+");
+				CommandLineParser parser = new PosixParser();
+				CommandLine cmd = null;
+				try {
+					cmd = parser.parse(options, tokens);
+				} catch (ParseException e) {
+					env.printError(e);
+					return;
+				}
+				
+				for(Iterator i = cmd.getArgList().iterator(); i.hasNext();) {
+					String path = i.next().toString();
+					List files = FileScanner.findFiles(path);
 					if( files != null && files.size() > 0) {
 						for(Iterator it = files.iterator(); it.hasNext();) {
 							File f = (File)it.next();
-							loadDocument(env, f.getAbsolutePath(), f);
+							String uri = getUri(cmd.getOptionValue("i"), f.getName());
+							loadDocument(env, uri, f);
 						}
 					} else {
-						env.printLine("No well-formed XML file(s) found at location " + paths[i] + ".");
+						env.printLine("No well-formed XML file(s) found at location " + path + ".");
 					}
 				}
 			}
@@ -76,7 +116,7 @@ public class load implements Command {
 		}
 	}
 
-    private void loadDocument(Environment env, String uri, File file) {
+    public void loadDocument(Environment env, String uri, File file) {
         try {
             env.printLine("Loading file " + file.getAbsolutePath() + "...");
             XdbcDataSource dataSource = (XdbcDataSource)env.getDataSource();
@@ -99,7 +139,22 @@ public class load implements Command {
         } catch(XQException e) {
             env.printLine("Failed to load document: " + e.getMessage());
         } catch(IOException e) {
-            env.printLine("Failed to load document: " + e.getMessage());
+            env.printLine("IO Error. Failed to load document: " + e.getMessage());
         }
+    }
+    
+    public String getUri(String prefix, String filename) {
+    		String uri = "";
+	    	if(prefix == null || prefix.length() == 0) {
+				uri = filename;
+		} else {
+			if(prefix.endsWith("/")) {
+				uri = prefix + filename;
+			} else {
+				uri = prefix + "/" + filename;
+			}
+		}
+	    	
+	    	return uri;
     }
 }

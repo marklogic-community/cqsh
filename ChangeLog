@@ -2,6 +2,13 @@
 cqsh - ChangeLog
 ===============================================================================
 
+* 2005-08-29
+	* Added command line option --load or -l to load files from command line.
+	* Added command line option --uriprefix or -i which specifies a uri prefix
+	  to append to the uri's created when loading files
+	* Added -i option to load command within shell to specify uri prefix	  
+	* Added new command 'cp' to copy documents -- Contributed by Ryan Grimm
+
 * 2005-08-07
 	* Added command line option --format or -F to pretty print xml output from 
 	  the command line.

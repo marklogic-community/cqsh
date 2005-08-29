@@ -17,6 +17,7 @@ package com.marklogic.shell;
 
 import java.io.*;
 import java.text.DecimalFormat;
+import java.util.Iterator;
 
 import org.apache.commons.cli.*;
 import org.apache.commons.configuration.ConfigurationException;
@@ -102,6 +103,9 @@ public class Shell implements Environment {
         Option help = OptionBuilder.withLongOpt("help")
                                    .withDescription("print help")
                                    .create("h");
+        Option loadOption = OptionBuilder.withLongOpt("load")
+                                   .withDescription("load files into database")
+                                   .create("l");
         Option fileOption = OptionBuilder.withLongOpt("file")
                                    .withDescription("read xquery from file")
                                    .hasArg()
@@ -109,12 +113,18 @@ public class Shell implements Environment {
         Option formatOption = OptionBuilder.withLongOpt("format")
                                    .withDescription("pretty print xml output")
                                    .create("F");
+        Option uriOption = OptionBuilder.withLongOpt("uriprefix")
+                                   .withDescription("uri prefix to append onto file names when loading")
+                                   .hasArg()
+                                   .create("i");
 
         options.addOption(user);
         options.addOption(password);
         options.addOption(host);
         options.addOption(port);
         options.addOption(help);
+        options.addOption(loadOption);
+        options.addOption(uriOption);
         options.addOption(fileOption);
         options.addOption(formatOption);
 
@@ -195,8 +205,16 @@ public class Shell implements Environment {
         try {
             stdinBytes = in.available();   
         } catch(IOException ignored) { }
-
-        if(stdinBytes > 0 ) {
+        
+        if(cmd.hasOption("l")) {
+        		printLine("Loading files...");
+        		load loader = new load();
+        		for(Iterator i = cmd.getArgList().iterator(); i.hasNext();) {
+        			File file = new File(i.next().toString());
+        			String uri = loader.getUri(cmd.getOptionValue("i"), file.getName());
+        			loader.loadDocument(this, uri, file);
+        		}
+        } else if(stdinBytes > 0 ) {
             StringBuffer xquery = new StringBuffer();
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));

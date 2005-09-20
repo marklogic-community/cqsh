@@ -113,10 +113,14 @@ public class Shell implements Environment {
         Option formatOption = OptionBuilder.withLongOpt("format")
                                    .withDescription("pretty print xml output")
                                    .create("F");
-        Option uriOption = OptionBuilder.withLongOpt("uriprefix")
+        Option uriPrefixOption = OptionBuilder.withLongOpt("uriprefix")
                                    .withDescription("uri prefix to append onto file names when loading")
                                    .hasArg()
                                    .create("i");
+        Option uriOption = OptionBuilder.withLongOpt("uri")
+                                   .withDescription("uri for the document being loaded")
+                                   .hasArg()
+                                   .create("n");
 
         options.addOption(user);
         options.addOption(password);
@@ -125,6 +129,7 @@ public class Shell implements Environment {
         options.addOption(help);
         options.addOption(loadOption);
         options.addOption(uriOption);
+        options.addOption(uriPrefixOption);
         options.addOption(fileOption);
         options.addOption(formatOption);
 
@@ -211,7 +216,10 @@ public class Shell implements Environment {
         		load loader = new load();
         		for(Iterator i = cmd.getArgList().iterator(); i.hasNext();) {
         			File file = new File(i.next().toString());
-        			String uri = loader.getUri(cmd.getOptionValue("i"), file.getName());
+        			String uri = cmd.getOptionValue("n");
+        			if(uri == null || uri.length() == 0) {
+        				uri = loader.getUri(cmd.getOptionValue("i"), file.getName());
+        			}
         			loader.loadDocument(this, uri, file);
         		}
         } else if(stdinBytes > 0 ) {

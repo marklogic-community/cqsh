@@ -80,11 +80,13 @@ public class ls implements Command {
 				return;
 			}
 			
-			String xpath = null;
+			String xpath = "";
 			
 			String[] args = cmd.getArgs();
 			if(args != null && args.length > 0) {
-				xpath = args[0];
+				for(int i = 0; i < args.length; i++) {
+					xpath += args[i] + " ";
+				}
 			} else {
 				xpath = "input()";
 			}

@@ -36,11 +36,16 @@ public class load implements Command {
 	private Options options = new Options();
 
 	public load() {
-		Option uriOption = OptionBuilder.withLongOpt("uriprefix")
+		Option uriPrefixOption = OptionBuilder.withLongOpt("uriprefix")
 		                            .withDescription("uri prefix to append to file names when loading")
 		                            .hasArg()
 		                            .create("i");
+		Option uriOption = OptionBuilder.withLongOpt("uri")
+		                            .withDescription("uri of the document being loaded")
+		                            .hasArg()
+		                            .create("n");
 
+		options.addOption(uriPrefixOption);
 		options.addOption(uriOption);
 	}
 	public String getName() {
@@ -103,7 +108,11 @@ public class load implements Command {
 					if( files != null && files.size() > 0) {
 						for(Iterator it = files.iterator(); it.hasNext();) {
 							File f = (File)it.next();
-							String uri = getUri(cmd.getOptionValue("i"), f.getName());
+							String uri = cmd.getOptionValue("n");
+							if(uri == null || uri.length() == 0) {
+								uri = getUri(cmd.getOptionValue("i"), f.getName());
+							}
+							
 							loadDocument(env, uri, f);
 						}
 					} else {

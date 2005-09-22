@@ -2,6 +2,9 @@
 cqsh - ChangeLog
 ===============================================================================
 
+* 2005-09-21
+	* Released version 0.0.3
+
 * 2005-09-20
 	* Added command line option --uri or -n to specify a full uri for a single
 	  document being loaded

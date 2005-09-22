@@ -8,7 +8,7 @@
     <!--                            Properties                              -->
     <!-- ================================================================== -->
       <property name="name" value="cqsh" />
-      <property name="version" value="0.0.2" />
+      <property name="version" value="0.0.3" />
       <property name="dist-name" value="${name}-${version}" />
 
       <property name="src"   location="${basedir}/src" />
@@ -88,6 +88,7 @@
         <delete dir="${build}" />
         <delete dir="${dist}" />
         <delete file="${dist-name}.zip" />
+        <delete file="${dist-name}.tar.gz" />
       </target>
 
     <!-- ================================================================== -->
@@ -123,6 +124,7 @@
     <target name="src-dist" depends="all,docs" description="generate the source dist" >
        <echo message="Building Source distribution" />
         <delete file="${basedir}/${dist-name}.zip" />
+        <delete file="${basedir}/${dist-name}.tar.gz" />
         <zip destfile="${basedir}/${dist-name}.zip">
             <zipfileset dir="${src}" prefix="${dist-name}/src" />
             <zipfileset dir="${dist}" prefix="${dist-name}/dist" />
@@ -136,7 +138,20 @@
             <zipfileset dir="${basedir}" includes="NOTICE" prefix="${dist-name}" />
             <zipfileset dir="${basedir}" includes="build.xml" prefix="${dist-name}" />
         </zip>
-    </target>
+		<tar longfile="gnu" destfile="${basedir}/${dist-name}.tar.gz" compression="gzip">
+            <tarfileset dir="${src}" prefix="${dist-name}/src" />
+            <tarfileset dir="${dist}" prefix="${dist-name}/dist" />
+            <tarfileset dir="${docs}" prefix="${dist-name}/docs" />
+            <tarfileset dir="${lib}" prefix="${dist-name}/lib" />
+            <tarfileset dir="${bin}" prefix="${dist-name}/bin" />
+            <tarfileset dir="${basedir}" includes="ChangeLog" prefix="${dist-name}" />
+            <tarfileset dir="${basedir}" includes="TODO" prefix="${dist-name}" />
+            <tarfileset dir="${basedir}" includes="README" prefix="${dist-name}" />
+            <tarfileset dir="${basedir}" includes="LICENSE" prefix="${dist-name}" />
+            <tarfileset dir="${basedir}" includes="NOTICE" prefix="${dist-name}" />
+            <tarfileset dir="${basedir}" includes="build.xml" prefix="${dist-name}" />
+		</tar>
+	</target>
 
     <!-- ================================================================== -->
     <!--               Generate Java docs                                   -->

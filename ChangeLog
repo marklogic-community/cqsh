@@ -2,6 +2,9 @@
 cqsh - ChangeLog
 ===============================================================================
 
+* 2006-02-07
+	* Applied cygwin patch by Matt Griffin
+
 * 2005-09-21
 	* Released version 0.0.3
 

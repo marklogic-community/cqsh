@@ -64,10 +64,16 @@ if [ ! -x "$JAVACMD" ] ; then
   exit 1
 fi
 
-CQSH_LIB=`echo $CQSH_HOME/lib/*.jar | tr ' ' ':'`
-CQSH_DIST=`echo $CQSH_HOME/dist/*.jar | tr ' ' ':'`
-CQSH_CLASSPATH="$CQSH_LIB:$CQSH_DIST"
+if [ "$OSTYPE" = "cygwin" ]; then
+    PATHCHAR=';'
+else
+    PATHCHAR=":"
+fi
+
+CQSH_LIB=`echo $CQSH_HOME/lib/*.jar | tr ' ' $PATHCHAR`
+CQSH_DIST=`echo $CQSH_HOME/dist/*.jar | tr ' ' $PATHCHAR`
+CQSH_CLASSPATH="$CQSH_LIB""$PATHCHAR""$CQSH_DIST"
 export LD_LIBRARY_PATH=$CQSH_HOME/lib/
 
-$JAVACMD -Xms128m -Xmx512m -classpath "$CQSH_CLASSPATH" com.marklogic.shell.Shell "$@"
+"$JAVACMD" -Xms128m -Xmx512m -classpath "$CQSH_CLASSPATH" com.marklogic.shell.Shell "$@"
 

@@ -2,6 +2,10 @@
 cqsh - ChangeLog
 ===============================================================================
 
+* 2006-02-13
+	* JLine wasn't properly detecting the Terminal type when run through
+	  cygwin. Now passing UnixTerminal as a vm option. Patch by Matt Griffin.
+
 * 2006-02-07
 	* Applied cygwin patch by Matt Griffin
 

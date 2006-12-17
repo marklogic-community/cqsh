@@ -74,9 +74,6 @@ else
 fi
 
 CQSH_LIB=`echo $CQSH_HOME/lib/*.jar | tr ' ' $PATHCHAR`
-CQSH_DIST=`echo $CQSH_HOME/dist/*.jar | tr ' ' $PATHCHAR`
-CQSH_CLASSPATH="$CQSH_LIB""$PATHCHAR""$CQSH_DIST"
-export LD_LIBRARY_PATH=$CQSH_HOME/lib/
 
-"$JAVACMD" $VMOPTS -classpath "$CQSH_CLASSPATH" com.marklogic.shell.Shell "$@"
+"$JAVACMD" $VMOPTS -classpath "$CQSH_LIB" com.marklogic.shell.Shell "$@"
 

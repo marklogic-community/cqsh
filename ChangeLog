@@ -8,6 +8,7 @@ cqsh - ChangeLog
     * Updated to jline 0.9.9
     * Changed build environment to use maven
     * Started on junit tests.
+    * Added new options to load command --collection, --permission, --quality
 
 * 2006-02-13
     * JLine wasn't properly detecting the Terminal type when run through

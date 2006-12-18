@@ -34,7 +34,11 @@ import org.apache.commons.cli.PosixParser;
 import com.marklogic.shell.Environment;
 import com.marklogic.shell.FileScanner;
 import com.marklogic.xcc.Content;
+import com.marklogic.xcc.ContentCapability;
+import com.marklogic.xcc.ContentCreateOptions;
 import com.marklogic.xcc.ContentFactory;
+import com.marklogic.xcc.ContentPermission;
+import com.marklogic.xcc.DocumentFormat;
 import com.marklogic.xcc.Session;
 import com.marklogic.xcc.exceptions.RequestException;
 
@@ -56,9 +60,23 @@ public class load implements Command {
                 .hasArg().create("i");
         Option uriOption = OptionBuilder.withLongOpt("uri").withDescription(
                 "uri of the document being loaded").hasArg().create("n");
+        Option colOption = OptionBuilder.withLongOpt("collection").withDescription(
+                "add document(s) to collection when loading").hasArg().create("c");
+        Option qualityOption = OptionBuilder.withLongOpt("quality").withDescription(
+                "add quality to document(s) when loading").hasArg().create("q");
+        Option permOption = OptionBuilder.withLongOpt("permission").withDescription(
+                "add permissions to document(s) when loading in the form of 'capability:role'. "+
+                "Capability must be one of: execute,insert,read,update").hasArg().create("x");
+        Option typeOption = OptionBuilder.withLongOpt("type").withDescription(
+                "add document format to document(s) when loading. Must be one of "+
+                "binary,text,xml").hasArg().create("t");
 
         options.addOption(uriPrefixOption);
         options.addOption(uriOption);
+        options.addOption(colOption);
+        options.addOption(permOption);
+        options.addOption(typeOption);
+        options.addOption(qualityOption);
     }
 
     public Options getOptions() {
@@ -103,7 +121,80 @@ public class load implements Command {
                 env.outputException(e);
                 return;
             }
-
+            
+            ContentCreateOptions contentOptions = new ContentCreateOptions();
+            
+            String quality = cmd.getOptionValue("q");
+            if(quality != null) {
+                try {
+                    Integer q = Integer.valueOf(quality);
+                    contentOptions.setQuality(q.intValue());
+                } catch(NumberFormatException e) {
+                    env.outputError("Invalid document quality (must be an int): "+quality);
+                    return;
+                }
+            }
+            
+            String docType = cmd.getOptionValue("t");
+            if(docType != null) {
+	            if("binary".equals(docType)) {
+	                contentOptions.setFormat(DocumentFormat.BINARY);
+	            } else if("text".equals(docType)) {
+	                contentOptions.setFormat(DocumentFormat.TEXT);
+	            } else if("xml".equals(docType)) {
+	                contentOptions.setFormat(DocumentFormat.XML);
+	            } else {
+	                env.outputError("Invalid document format. Must be: binary,text,xml");
+	                return;
+	            }
+            }
+            
+            String[] cols = cmd.getOptionValues("c");
+            if(cols != null && cols.length > 0) {
+                contentOptions.setCollections(cols);
+            }
+            
+            String[] perms = cmd.getOptionValues("x");
+            if(perms != null && perms.length > 0) {
+                List contentPermissions = new ArrayList();
+                for(int i = 0; i < perms.length; i++) {
+                    ContentCapability ccap = null;
+                    String p = perms[i];
+                    if(p == null) {
+                        env.outputError("Invalid permission option. Must be of the form: 'capability:role'");
+                        return;
+                    }
+                    String[] parts = p.split(":");
+                    if(parts == null || parts.length != 2) {
+                        env.outputError("Invalid permission option. Must be of the form: 'capability:role'");
+                        return;
+                    }
+                    String capability = parts[0];
+                    String role = parts[1];
+                    if("execute".equals(capability)) {
+                        ccap = ContentCapability.EXECUTE;
+                    } else if("insert".equals(capability)) {
+                        ccap = ContentCapability.INSERT;
+                    } else if("read".equals(capability)) {
+                        ccap = ContentCapability.READ;
+                    } else if("update".equals(capability)) {
+                        ccap = ContentCapability.UPDATE;
+                    } else {
+                        env.outputError("Invalid permission '"+p+"'. Capability must be one of:  execute,insert,read,update");
+                        return;
+                    }
+                    
+                    if(role == null || role.length() == 0) {
+                        env.outputError("Invalid permission. Please provide a role");
+                        return;
+                    }
+                    contentPermissions.add(new ContentPermission(ccap, role));
+                }
+                ContentPermission[] cperms = new ContentPermission[contentPermissions.size()];
+                contentPermissions.toArray(cperms);
+                contentOptions.setPermissions(cperms);
+            }
+            
             env.outputLine("Loading files...");
             int total = 0;
             for(Iterator i = cmd.getArgList().iterator(); i.hasNext();) {
@@ -117,7 +208,7 @@ public class load implements Command {
                         if(uri == null || uri.length() == 0) {
                             uri = getUri(cmd.getOptionValue("i"), f.getName());
                         }
-                        list.add(ContentFactory.newContent(uri, f, null));
+                        list.add(ContentFactory.newContent(uri, f, contentOptions));
                     }
                     Content[] contentList = new Content[list.size()];
                     list.toArray(contentList);

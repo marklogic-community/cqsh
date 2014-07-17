@@ -82,7 +82,7 @@
     <dependency>
       <groupId>com.marklogic</groupId>
       <artifactId>xcc</artifactId>
-      <version>3.1.4</version>
+      <version>5.0.1</version>
     </dependency>
   </dependencies>
 </project>
